@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>添加记录</title>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="../../../moduleweb/resources/layui/css/layui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/index.css"/>
+		<link rel="stylesheet" href="../../resources/css/bootstrap-datetimepicker.min.css">
+		<link rel="stylesheet" type="text/css" href="../../resources/plugins/ztree/zTreeStyle.css" />
+		<style>
+			.td-omit{
+				width: 23%;
+			}
+			.omit{
+				width: 200px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+		</style>
+	</head>
+	<body>
+		<aside>
+			<img src="../img/nonews.png"/>
+		</aside>
+		<nav class="header">
+			<ol class="breadcrumb">
+			  <li><a href="javascript:;">中心组学习</a></li>
+			  <li><a href="javascript:;">旁听巡听</a></li>
+			  <li class="active cursor">添加记录</li>
+			</ol>
+		</nav>
+		<article>
+			<nav>
+				<ul class="clear">
+					<li class="left cursor active">添加记录</li>
+				</ul>
+			</nav>
+			<section>
+				<table class="table table-striped tableNoBor">
+					<tr>
+						<th>学习标题</th>
+						<th>学习开始时间</th>
+						<th>学习地点</th>
+						<th>会议类型</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+					<tbody class="tablelist">
+						<tr class="tableitem">
+							<td class="td-omit"><p class="omit studytitle">学习标题学习标题学习标题学习标题标题学习标题学习标题</p></td>
+							<td class="time">2018-01-31</td>
+							<td class="td-omit"><p class="omit  studysite">学习地点学习地点学习地点学习地点标题学习标题学习标题</p></td>
+							<td class="meetType">普通会议</td>
+							<td class="meetstate">未开始</td>
+							<td><a href="javascript:;" class="changeBtn" onclick="addFUN(this)">添加</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<div id="readpage"></div>
+			</section>
+			<section>
+				<div class="footerBtnBox">
+					<button class="btnbg submitBtn">提交</button>
+					<button class="btn btn-default cancelBtn">取消</button>
+				</div>
+			</section>
+		</article>
+	</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap-datetimepicker.zh-CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/timer.js"></script>
+<script type="text/javascript" src="../../resources/plugins/ztree/jquery.ztree.core.min.js"></script>
+<script src="../../resources/plugins/ztree/jquery.ztree.excheck.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	var pageid = getParam("id");
+	var tableitem = $(".tableitem")
+    tableitem.remove();
+    var titleModal = $(".titleModal");
+    titleModal.remove();
+    var pagea = 1; //开始页数
+    var sizea = 20; //每页最多显示条数
+    var nowpagea = 1; //当前页数
+    var pagesa = 0; //总数
+    $(function() {
+        render()
+    })
+    function render() {
+        $.get(_ctxPath + "conference/plan/conferquery.action", {
+            "planId":pageid,
+            "page": nowpagea, //当前页数
+            "size": sizea,
+        }, function(data) {
+            $(".tablelist").html("");
+            var arr = data.data.data;
+            pagesa = data.data.total;
+            pagea = data.data.page;
+            if (arr.length > 0) {
+                $(arr).each(function() {
+                    var item = tableitem.clone();
+                    item.find(".studytitle").text(this.title);
+                    item.find(".time").text(this.formatAttendtime);
+                    item.find(".studysite").text(this.address);
+                    item.find(".meetType").text(this.meetTypeName);
+                    var meetState = meetstateFun(this.state);
+                    item.find(".meetstate").text(meetState);
+                    item.find("a").attr("id",this._id)
+                    $(".tablelist").append(item);
+                })
+            }
+            pagepeozhi()
+        })
+    }
+    function pagepeozhi() {
+        layui.use(['laypage', 'layer'], function() {
+            var laypage = layui.laypage,
+                layer = layui.layer;
+            laypage.render({
+                elem: 'readpage',
+                count: pagesa,
+                curr: nowpagea,
+                limit: sizea,
+                layout: ['count', 'prev', 'page', 'next', 'skip'],
+                jump: function(obj, first) {
+                    nowpagea = obj.curr;
+                    pagea = (obj.curr - 1) * sizea;
+                    if (!first) { //一定要加此判断，否则初始时会无限刷新
+                        render(); //一定要把翻页的ajax请求放到这里，不然会请求两次。
+                        location.href = '#top';
+                    }
+                }
+            });
+        });
+    }
+    function addFUN(that){
+        var owenid = $(that).attr("id");
+        window.location.href = "addrecord.html?pageid="+ pageid+"&owenid="+owenid;
+	}
+
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+    function meetstateFun(state) {
+        var test;
+        if (state == "1" || state == "0") {
+            test = '未开始';
+        } else if (state == "2") {
+            test= '进行中';
+        } else if (state == "3" ||state == "4"||state == "5" ) {
+            test = '已结束';
+        } else if (state == "-1") {
+            test = '已取消';
+        }
+        return test;
+    };
+</script>

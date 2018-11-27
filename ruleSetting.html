@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>规则设置</title>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/index.css"/>
+		<link rel="stylesheet" type="text/css" href="../../../moduleweb/resources/layui/css/layui.css" />
+		<style>
+			.alertBox .alert{
+				width: 200px;
+			}
+			.alertBox .alert .alert_content, .alertBox .alert2 .alert_content, .alertBox2 .alert .alert_content, .alertBox2 .alert2 .alert_content{
+				min-height: 100px;
+			}
+			#transitpage {
+				margin-top: 20px;
+				float: right;
+			}
+			.td-omit{
+				width:35%;
+			}
+			.omit{
+				width: 300px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+			.layui-layer-content{
+				color: #ffffff;
+				background:rgba(0,0,0,0.5);
+				margin: 0;
+				padding: 0;
+				border-radius: 4px;
+			}
+			.layui-layer.layui-layer-dialog.layui-layer-border.layui-layer-msg.layer-anim{
+				background-color: transparent;
+				border:none;
+			}
+			.operate a{
+				color: #2198F1;
+			}
+		</style>
+	</head>
+	<body>
+		<aside>
+			<img src="../img/nonews.png"/>
+		</aside>
+		<nav class="header">
+			<ol class="breadcrumb">
+			  <li><a href="javascript:;">中心组学习</a></li>
+			  <li><a href="javascript:;">旁听巡听</a></li>
+			  <li class="active cursor">规则设置</li>
+			</ol>
+		</nav>
+		<article>
+			<nav>
+				<ul class="clear">
+					<li class="left cursor active">规则设置</li>
+				</ul>
+			</nav>
+			<section>
+				<button class="btnbg setbtn">设置</button>
+			</section>
+			<section>
+				<table class="table table-striped tableNoBor">
+					<tr>
+						<th>名称</th>
+						<th>创建时间</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+					<tbody class="tablelist">
+						<tr class="tableitem">
+							<td class="td-omit"><p class="ruleName omit"></p></td>
+							<td class="time"></td>
+							<td class="state"></td>
+							<td class="operate" style="width:15%">
+								<a href="javascript:;" class="seebtn">查看</a>
+								<a href="javascript:;" class="editorbtn">编辑</a>
+								<a href="javascript:;" class="statechangebtn" onclick="changestateFUN(this)"></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<div id="transitpage"></div>
+			</section>
+		</article>
+		<div class="alertBox alertBox1">
+			<div class="alert">
+				<div class="header">
+					<p class="ellipsis">设置规则名称</p>
+					<img class="closeAlert" src="../img/close.png"/>
+				</div>
+				<div class="alert_content row setcontent">
+					<form class="form-horizontal col-xs-11">
+						<div class="form-group">
+							<label  class="col-xs-4 control-label"><span class="red">*</span>规则名称：</label>
+							<div class="col-xs-8">
+								<input type="text" class="form-control rulename" placeholder="请输入" />
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="alert_footer">
+					<button class="btnbg sure" onclick="addreluFUN()">确定</button>
+					<button class="btn btn-default cancel">取消</button>
+				</div>
+			</div>
+
+		</div>
+	</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script>
+    $(function(){
+        $(".setbtn").off("click").on("click",function(){
+            $(".alertBox1").fadeIn();
+        });
+        $(".alertBox1 .closeAlert,.alertBox1 .cancel,.alertBox1 .sure").off("click").on("click",function(){
+            $(".alertBox1").fadeOut();
+        });
+    })
+</script>
+<script type="text/javascript">
+    var tableitem = $(".tableitem")
+    tableitem.remove();
+    var pagea = 1; //开始页数
+    var sizea = 20; //每页最多显示条数
+    var nowpagea = 1; //当前页数
+    var pagesa = 0; //总数
+    $(function() {
+        render()
+    });
+
+    function render() {;
+        getFun("conference/rule/query.action",{"page": nowpagea,"size": sizea,},function (data) {
+            $(".tablelist").html("");
+            var arr = data.data.data;
+            pagesa = data.data.total;
+            pagea = data.data.page;
+            if (arr.length > 0) {
+                $(arr).each(function() {
+                    var item = tableitem.clone();
+                    item.find(".ruleName").text(this.name).attr("title",this.name);
+                    item.find(".time").text(this.createTimeFormat);
+                    if(this.vail==0){
+                        item.find(".state").text("已关闭");
+                        item.find(".statechangebtn").text("启用");
+					}else {
+                        item.find(".state").text("已启用");
+                        item.find(".statechangebtn").text("禁用");
+					}
+					item.find(".seebtn").attr("href","addRule.html?id="+this._id);
+                    item.find(".editorbtn").attr("href","addRule.html?id="+this._id)
+                    item.find(".statechangebtn").attr("id",this._id);
+                    $(".tablelist").append(item);
+                })
+            }
+            pagepeozhi()
+        })
+    }
+    function pagepeozhi() {
+        layui.use(['laypage', 'layer'], function() {
+            var laypage = layui.laypage,
+                layer = layui.layer;
+            laypage.render({
+                elem: 'transitpage',
+                count: pagesa,
+                curr: nowpagea,
+                limit: sizea,
+                layout: ['count', 'prev', 'page', 'next', 'skip'],
+                jump: function(obj, first) {
+                    nowpagea = obj.curr;
+                    pagea = (obj.curr - 1) * sizea;
+                    if (!first) { //一定要加此判断，否则初始时会无限刷新
+                        render(); //一定要把翻页的ajax请求放到这里，不然会请求两次。
+                        location.href = '#top';
+                    }
+                }
+            });
+        });
+    }
+    function changestateFUN(that){
+        var id = $(that).attr("id");
+        var changtitle = $(that).text();
+        if(changtitle=="启用"){
+        getFun("conference/rule/enable.action",{"confId":id},function(data){
+            if(data.success==true){
+                layer.msg("启用成功");
+                render()
+			}
+			else{
+                alertFun(data.message)
+			}
+		})
+    }
+    else{
+            getFun("conference/rule/disabled.action",{"confId":id},function(data){
+                if(data.success==true){
+                    layer.msg("禁用成功");
+                    render()
+                }
+                else{
+                    alertFun(data.message)
+                }
+            })
+		}
+	}
+
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>
+<script>
+	function addreluFUN() {
+	   var rulename = $(".rulename").val();
+	   var url = "conference/rule/editCfRule.action";
+	   getFun(url,{"name":rulename},function (data) {
+			if(data.success){
+		   var ruleid = data.data._id;
+			 window.location.href = "addRule.html?id=" + ruleid;
+		  }
+		  else{
+			 alertFun(data.message)
+		  }
+     })
+    }
+</script>

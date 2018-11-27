@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>添加记录</title>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/index.css"/>
+    <style>
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+            vertical-align: middle;
+
+        }
+        .td-title{
+            text-align: center;
+            width: 15%;
+        }
+        th{
+            text-align: center;
+        }
+        .tab-title{
+            background-color: #F9F9F9;
+            height: 52px;
+            display:flex;
+            align-items: center;
+            padding-left: 12px;
+        }
+    </style>
+</head>
+<body>
+<aside>
+    <img src="../img/nonews.png"/>
+</aside>
+<nav class="header">
+    <ol class="breadcrumb">
+        <li><a href="javascript:;">中心组学习</a></li>
+        <li><a href="javascript:;">旁听巡听</a></li>
+        <li class="active cursor">添加记录</li>
+    </ol>
+</nav>
+<article>
+    <nav>
+        <ul class="clear">
+            <li class="left cursor active">添加记录</li>
+        </ul>
+    </nav>
+    <section class="list">
+        <div class="tab-item reuitem">
+            <div class="tab-title reuitem-title"></div>
+            <table class="table table-bordered ">
+                <tr>
+                    <th>分值</th>
+                    <th>评分标准</th>
+                    <th>得分</th>
+                </tr>
+                <tbody class="tablelist">
+                <tr class="tableitem">
+                    <td  class="td-title table-score" ></td>
+                    <td class="table-stander"></td>
+                    <td class="td-title "><input type="number" placeholder="点击填写得分情况" class="addscore" min="0"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <section>
+        <div class="footerBtnBox">
+            <button class="btn btn-default cancelBtn">取消</button>
+            <button class="btnbg submitBtn" onclick="allconfirmFUN()">确定</button>
+        </div>
+    </section>
+</article>
+</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script>
+    var pageid = getParam("pageid");
+    var oneid = getParam("owenid")
+    var reuitem = $(".reuitem");
+    var tableitem = $(".tableitem");
+    tableitem.remove();
+    reuitem.remove();
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>
+<script>
+    $(function(){
+        render()
+    })
+    function render (){
+        getFun("conference/plan/lookPlan.action",{"planId":pageid},function(data){
+            var bigid = data.entity.ruleId;
+            if(data.success){
+                $(".reluName").val(data.entity.name)
+                var arrone = data.data[bigid];
+                var numarr = data.entity.rulePlan[oneid];
+                $(arrone).each(function(ind,val){
+                    var item = reuitem.clone();
+                    item.find(".reuitem-title").text(this.name);
+                    item.find("a").attr("titleid",this._id);
+                    var tablearr = data.data[this._id];
+                    $(tablearr).each(function(){
+                        var item2 = tableitem.clone();
+                        item2.find(".table-score").text(this.score);
+                        item2.find(".table-stander").text(this.standard);
+                        item2.find(".addscore").attr("id",this._id).attr("max",this.score);
+                        if(numarr&&numarr[this._id]){
+                            item2.find(".addscore").val(numarr[this._id]);
+                        }
+                        item.find(".tablelist").append(item2);
+                    })
+                    $(".list").append(item)
+                })
+            }
+            else{
+                alertFun(data.message)
+            }
+            listerFUN()
+        })
+    }
+    function allconfirmFUN (){
+        var arr = [];
+        $(".tableitem").each(function(){
+            arr.push($(this).find(".addscore").attr("id")+"_"+$(this).find(".addscore").val());
+        })
+        var scorearr = arr.toString();
+        getFun("conference/plan/adddateil.action",{"planId":pageid,"conferId":oneid,"ruleId_score":scorearr},function(data){
+            if(data.success){
+                history.back(-1)
+            }
+            else{
+                alertFun(data.message)
+            }
+        })
+    }
+</script>
+<script>
+    function listerFUN() {
+        $(".delcontent").off("click").on("click",function(){
+            $(".alertBox1").fadeIn();
+            var delid = $(this).attr("titleid")
+            $(".alertBox1").find(".sure").attr("id",delid);
+        });
+        $(".alertBox1 .closeAlert,.alertBox1 .cancel,.alertBox1 .sure").off("click").on("click",function(){
+            $(".alertBox1").fadeOut();
+        });
+        $(".addEvaluation").off("click").on("click",function(){
+            $(".Evaluationcontent").val("");
+            $(".alertBox2").fadeIn();
+
+        })
+        $(".alertBox2 .closeAlert,.alertBox2 .cancel,.alertBox2 .sure").off("click").on("click",function(){
+            $(".alertBox2").fadeOut();
+        });
+        $(".addscore,.eaitorscore").off("click").on("click",function(){
+            $(".alert-scoreNum").val("");
+            $(".alert-stander").val("");
+            $(".alertBox3").find(".sure").attr("id","").attr("titleid","");
+            var bigid = $(this).attr("titleid");
+            var id = $(this).attr("id");
+            var editiornum = $(this).parent().parent().find(".table-score").text();
+            var editorstand = $(this).parent().parent().find(".table-stander").text();
+            $(".alert-scoreNum").val(editiornum);
+            $(".alert-stander").val(editorstand);
+            $(".alertBox3").fadeIn();
+            $(".alertBox3").find(".sure").attr("id",id).attr("parentid",bigid);
+        })
+        $(".alertBox3 .closeAlert,.alertBox3 .cancel,.alertBox3 .sure").off("click").on("click",function(){
+            $(".alertBox3").fadeOut();
+        });
+
+    }
+</script>

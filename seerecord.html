@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>查看记录</title>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css" />
+    <style>
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+            vertical-align: middle;
+
+        }
+        .td-title{
+            text-align: center;
+            width: 10%;
+        }
+        th{
+            text-align: center;
+        }
+        .tab-title{
+            padding-bottom: 20px;
+        }
+        .section{
+            padding-left: 15px;
+        }
+        .tab-item{
+            padding-top: 30px;
+            padding-left: 80px;
+        }
+        .outbtn{
+            display: inline-block;
+            width: 70px;
+            height: 33px;
+            background: url(../img/exportbg.png) left top no-repeat;
+            background-size: 100% 100%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            color: #fff!important;
+            text-align: center;
+            line-height: 33px;
+
+        }
+        .outbtn:hover{
+            color: #FFFFFF!important;
+        }
+    </style>
+</head>
+<body>
+<aside>
+    <img src="../img/nonews.png"/>
+</aside>
+<nav class="header">
+    <ol class="breadcrumb">
+        <li><a href="javascript:;">中心组学习</a></li>
+        <li><a href="javascript:;">旁听巡听</a></li>
+        <li class="active cursor">查看记录</li>
+    </ol>
+</nav>
+<article>
+    <nav>
+        <ul class="clear">
+            <li class="left cursor active">查看记录</li>
+        </ul>
+    </nav>
+    <section class="list">
+        <div class="section-title">单位名称: <span class="section">XXXXXXXXXX党工部</span></div>
+        <div class="tab-item bigitem">
+            <div class="tab-title">
+                <span>添加时间：<span class="time">2018-01-01</span></span>
+                <button class="btnbg eaiteotbn" onclick="goeaitorFUN(this)">编辑</button>
+                <a href="#" class="outbtn red">导出</a>
+            </div>
+            <table class="table table-bordered ">
+                <tr>
+                    <th>考核内容</th>
+                    <th>分值</th>
+                    <th>标准</th>
+                    <th>得分</th>
+                </tr>
+                <tbody class="tablelist">
+                    <tr class="tableitem">
+                        <td class="examcontent"></td>
+                        <td class="scorenum"></td>
+                        <td class="scorestander"></td>
+                        <td class="havescore"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</article>
+</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script>
+    var tableitem = $(".tableitem");
+    tableitem.remove();
+    var bigitem = $(".bigitem");
+    bigitem.remove();
+    var pageid = getParam("outid");
+    $(function(){
+        render()
+    })
+    function render (){
+        getFun("conference/plan/lookPlan.action",{"planId":pageid},function(data){
+            $(".section").text(data.entity.forbumenName)
+            var ruleId = data.entity.ruleId;
+            var itemobj = data.entity.planLog;
+            var contentarr = data.data[ruleId];
+            $(contentarr).each(function(i,name){
+                var standerid = this._id;
+                var citem = $(tableitem).clone();
+                citem.find(".examcontent").text(name.name).attr("rowspan",data.data[standerid].length);
+                $(bigitem).find(".tablelist").append(citem);
+                $(data.data[standerid]).each(function(index,stan){
+                    var rowitem = citem;
+                    if(index!=0){
+                        rowitem=$(tableitem).clone();
+                        rowitem.find(".examcontent").remove();
+                    }
+                    rowitem.find(".scorenum").text(this.score);
+                    rowitem.find(".scorestander").text(this.standard);
+                    rowitem.find(".havescore").attr("id",this._id)
+                    $(bigitem).find(".tablelist").append(rowitem);
+                })
+
+            })
+            for(key in itemobj){
+                var item = bigitem.clone();
+                item.find(".time").text(itemobj[key].formatTime);
+                item.find(".outbtn").attr("href",_ctxPath+"conference/plan/downPlan.action?planId="+pageid+"&conferId="+key)
+                item.find(".eaiteotbn").attr("id",key)
+                var rulev=data.entity.rulePlan[key];
+                if(rulev){
+                    for (sck in rulev) {
+                        item.find('#'+sck).text(rulev[sck]);
+                    }
+                }
+                $(".list").append(item)
+            }
+
+        })
+    }
+    function goeaitorFUN(that){
+        window.location.href="addrecord.html?pageid="+pageid+"&owenid="+$(that).attr("id")
+    }
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>

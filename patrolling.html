@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>旁听巡听</title>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="../../../moduleweb/resources/layui/css/layui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/index.css"/>
+		<link rel="stylesheet" href="../../resources/css/bootstrap-datetimepicker.min.css">
+		<link rel="stylesheet" type="text/css" href="../../resources/plugins/ztree/zTreeStyle.css" />
+		<style>
+			/*titltModal*/
+			.changeBtn {
+				position: relative;
+			}
+			.changeBtn:hover .titleModal {
+				display: block;
+			}
+			.titleModal {
+				width: 120px;
+				height: 72px;
+				overflow: hidden;
+				border-radius: 4px;
+				position: absolute;
+				top: 100%;
+				background: #fff;
+				box-shadow: 0 0 5px 1px #ccc;
+				display: none;
+			}
+			.titleModal>div {
+				padding: 8px;
+			}
+			.titleModal>div:hover {
+				background: #E6F7FF;
+			}
+			.alertBox .alert .alert_content, .alertBox .alert2 .alert_content, .alertBox2 .alert .alert_content, .alertBox2 .alert2 .alert_content{
+				min-height: 100px;
+			}
+			.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control{
+				background-color: #ffffff;
+			}
+			.sctiontree,.peotree{
+				background-color: #FFFFFF;
+				width:400px;
+				height: 500px;
+				position: absolute;
+				top:200px;
+				bottom:200px;
+				right: 0;
+				left: 0;
+				margin: auto;
+				padding: 15px;
+				top:34px;
+				overflow-y: auto;
+				overflow-x: auto;
+				box-shadow: 0px 4px 12px rgba(152, 139, 139, 0.447058823529412);
+				z-index: 999999966;
+			}
+			.pingji{
+				z-index: 9999999;
+				position:absolute;
+				top: 0;
+				left: 0;
+				bottom:0;
+				right:0;
+			}
+			.peoalert{
+				z-index: 999999;
+				position: fixed;
+				top: 0;
+				left: 0;
+				bottom:0;
+				right:0;
+			}
+			.palert{
+				z-index: 999999;
+				position: fixed;
+				top: 0;
+				left: 0;
+				bottom:0;
+				right:0;
+			}
+			.layui-layer-content{
+				color: #ffffff;
+				background:rgba(0,0,0,0.5);
+				margin: 0;
+				padding: 0;
+				border-radius: 4px;
+			}
+			.layui-layer.layui-layer-dialog.layui-layer-border.layui-layer-msg.layer-anim{
+				background-color: transparent;
+				border:none;
+			}
+		</style>
+	</head>
+	<body>
+		<aside>
+			<img src="../img/nonews.png"/>
+		</aside>
+		<nav class="header">
+			<ol class="breadcrumb">
+			  <li><a href="javascript:;">中心组学习</a></li>
+			  <li class="active cursor">旁听巡听</li>
+			</ol>
+		</nav>
+		<article>
+			<nav>
+				<ul class="clear">
+					<li class="left cursor active">旁听巡听</li>
+				</ul>
+			</nav>
+			<section>
+				<label for="">单位名称：</label>
+				<input type="text" class="form-control widthMin verticalalignTop selectbumen" placeholder="请输入" />
+				<button class="btnbg " onclick="checkFUN()">查询</button>
+				<button class="btnbg " onclick="cancelFUN()">重置</button>
+				<button class="btnbg2 ruleSetting">规则设置</button>
+				<button class="btnbg2 createpaln">创建计划</button>
+			</section>
+			<section>
+				<table class="table table-striped tableNoBor">
+					<tr>
+						<th>单位名称</th>
+						<th>计划开始时间</th>
+						<th>计划结束时间</th>
+						<th>旁听巡听记录</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+					<tbody class="tablelist ">
+						<tr class="tableitem">
+							<td class="branchName cursor" onclick="gooutFUN(this)">某某党支部</td>
+							<td class="startTime">2018-01-01</td>
+							<td class="endTime">2018-01-31</td>
+							<td class="num">0</td>
+							<td  class="state">未开始</td>
+							<td>
+								<a href="javascript:;" class="changeBtn caozuoitem" onclick="caozuoFun(this)"></a>
+							</td>
+					</tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<div id="readpage"></div>
+			</section>
+		</article>
+		<div class="alertBox alertBox1">
+			<div class="alert">
+				<div class="header">
+					<p class="ellipsis">提示</p>
+					<img class="closeAlert" src="../img/close.png"/>
+				</div>
+				<div class="alert_content">
+					您还未设置规则，不能进行创建计划，是否需要设置规则？
+				</div>
+				<div class="alert_footer">
+					<button class="btnbg sure">确定</button>
+					<button class="btn btn-default cancel">取消</button>
+				</div>
+			</div>
+		</div>
+		<div class="alertBox alertBox2">
+			<div class="alert">
+				<div class="header">
+					<p class="ellipsis">创建计划</p>
+					<img class="closeAlert" src="../img/close.png"/>
+				</div>
+				<div class="alert_content row">
+					<form class="form-horizontal col-xs-11">
+						<div class="form-group">
+							<label  class="col-xs-4 control-label"><span class="red">*</span>巡听人员：</label>
+							<div class="col-xs-8">
+								<input type="text" class="form-control people cursor" placeholder="请输入"  readonly onclick="showMenu2()"/>
+							</div>
+					  	</div>
+					  	<div class="form-group">
+							<label  class="col-xs-4 control-label"><span class="red">*</span>选择被巡听单位：</label>
+							<div class="col-xs-8">
+								<input type="text" class="form-control besection cursor" placeholder="请输入"  readonly onclick="showMenu()"/>
+							</div>
+					  	</div>
+					  	<div class="form-group">
+							<label  class="col-xs-4 control-label"><span class="red">*</span>选择开始时间：</label>
+							<div class="col-xs-8">
+								<input type="text" class="form-control datetimeStart" placeholder="请输入"  readonly />
+							</div>
+					  	</div>
+					  	<div class="form-group">
+							<label  class="col-xs-4 control-label"><span class="red">*</span>选择结束时间：</label>
+							<div class="col-xs-8">
+								<input type="text" class="form-control  datetimeEnd" placeholder="请输入"  readonly  />
+							</div>
+					  	</div>
+					</form>
+				</div>
+				<div class="alert_footer">
+					<button class="btnbg sure" onclick="creatconfirm()">确定</button>
+					<button class="btn btn-default cancel">取消</button>
+				</div>
+			</div>
+		</div>
+		<div class="peoalert" style="display: none">
+			<div class="pingji"></div>
+			<div class="peotree " >
+				<div class="form-group row">
+					<label  class="col-xs-3 control-label">姓名：</label>
+					<div class="col-xs-6">
+						<input type="text" class="form-control alert-scoreNum" placeholder="请输入" id="key"/>
+					</div>
+					<div class="col-xs-3"> <button class="btnbg" >搜索</button></div>
+				</div>
+				<div class="sctiontree-ttitle">巡听人员</div>
+				<ul id="treeDemo2" class="ztree"></ul>
+			</div>
+		</div>
+		<div class="palert" style="display: none">
+			<div class="pingji"></div>
+			<div class="sctiontree " >
+				<div class="sctiontree-ttitle">组织部门选择</div>
+				<ul id="treeDemo1" class="ztree"></ul>
+			</div>
+		</div>
+	</body>
+</html>
+<!--biange-->
+<div class="titleModal" style="display: none">
+	<div onclick="changeplaneFun(this)">变更计划</div>
+	<div onclick="cancleplaneFun(this)">取消计划</div>
+</div>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap-datetimepicker.zh-CN.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/timer.js"></script>
+<script type="text/javascript" src="../../resources/plugins/ztree/jquery.ztree.core.min.js"></script>
+<script src="../../resources/plugins/ztree/jquery.ztree.excheck.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/plugins/ztree/jquery.ztree.exhide.js"></script>
+<script src="../../resources/plugins/ztree/fuzzySearch.js"></script>
+<script type="text/javascript">
+    var tableitem = $(".tableitem")
+    tableitem.remove();
+    var titleModal = $(".titleModal");
+    titleModal.remove();
+    var pagea = 1; //开始页数
+    var sizea = 20; //每页最多显示条数
+    var nowpagea = 1; //当前页数
+    var pagesa = 0; //总数
+	var sectionName = "";
+    $(function() {
+        render()
+    })
+
+    function render() {
+        $.get(_ctxPath + "conference/plan/query.action", {
+            "regex:forbumenName":sectionName,
+            "page": nowpagea, //当前页数
+            "size": sizea,
+        }, function(data) {
+            $(".tablelist").html("");
+            var arr = data.data.data;
+            pagesa = data.data.total;
+            pagea = data.data.page;
+            if (arr.length > 0) {
+                $(arr).each(function() {
+                    var item = tableitem.clone().attr("id",this._id);
+                    item.find(".branchName").text(this.forbumenName)
+                    item.find(".startTime").text(this.formatStartTime);
+                    item.find(".endTime").text(this.formatEnadTime);
+                    item.find(".num").text(this.conferSize);
+                   var meetState = meetstateFun(this.state);
+					var caozuo = meecaozuoFun(this.state);
+                    item.find(".state").text(meetState);
+                    item.find(".caozuoitem").text(caozuo);
+                    if (caozuo =="变更"){
+                        var titleModalitem = titleModal.clone().css("display","").attr("id",this._id)
+                        item.find(".caozuoitem").append(titleModalitem)
+					}
+                    $(".tablelist").append(item);
+                })
+            }
+            pagepeozhi()
+            listerFUN()
+        })
+    }
+    function pagepeozhi() {
+        layui.use(['laypage', 'layer'], function() {
+            var laypage = layui.laypage,
+                layer = layui.layer;
+            laypage.render({
+                elem: 'readpage',
+                count: pagesa,
+                curr: nowpagea,
+                limit: sizea,
+                layout: ['count', 'prev', 'page', 'next', 'skip'],
+                theme: "#009688",
+                jump: function(obj, first) {
+                    nowpagea = obj.curr;
+                    pagea = (obj.curr - 1) * sizea;
+                    if (!first) { //一定要加此判断，否则初始时会无限刷新
+                        render(); //一定要把翻页的ajax请求放到这里，不然会请求两次。
+                        location.href = '#top';
+                    }
+                }
+            });
+        });
+    }
+    function checkFUN (){
+        sectionName = $(".selectbumen").val();
+        render()
+	}
+	function caozuoFun (that){
+        var  caozuotitle = $(that).text();
+        var planeid = $(that).parent().parent().attr("id");
+        if(caozuotitle == "变更"){
+            // changeplaneFun(planeid)
+		} else if(caozuotitle == "删除"){
+            delplaneFun(planeid)
+		}else if(caozuotitle == "添加记录"){
+            window.location.href = "addPlanRecord.html?id="+ planeid;
+        }
+
+	}
+	function cancelFUN (){
+        $(".selectbumen").val("");
+         sectionName = "";
+        render()
+	}
+	function delplaneFun (id){
+        getFun("conference/plan/delete.action",{"planId":id},function(data){
+            if(data.success==true){
+                layer.msg("删除计划成功");
+                render()
+            }
+            else{
+                alertFun(data.message)
+            }
+        })
+	}
+	function changeplaneFun(that){
+        var changeid = $(that).parent().attr("id");
+        getFun("conference/plan/findById.action",{"planId":changeid},function(data){
+			if(data.success==true){
+                $(".datetimeStart").val(data.data.formatStartTime);
+                $(".datetimeEnd").val(data.data.formatEnadTime);
+                $(".selList option:selected").val(data.data.bumenId);
+                $(".selList option:selected").text(data.data.bumenName);
+                $(".besection").attr("id",data.data.forbumenId);
+                $(".besection").val(data.data.forbumenName);
+                $(".alertBox2").fadeIn();
+                changplaneid = data.data._id;
+                TourFUN();
+			}
+			else{
+                alertFun(data.message)
+			}
+        })
+	}
+    function cancleplaneFun(that){
+        var cancleid = $(that).parent().attr("id");
+        getFun("conference/plan/cancel.action",{"planId":cancleid},function(data){
+            if(data.success==true){
+                layer.msg("取消计划成功");
+                render()
+            }
+            else{
+                alertFun(data.message)
+            }
+		})
+    }
+    function gooutFUN (that){
+        var outid = $(that).parent().attr("id");
+        window.location.href = "seerecord.html?outid="+ outid;
+	}
+
+</script>
+<script>
+    var optionitem = $(".optionitem");
+    optionitem.remove();
+    var changplaneid = "";
+    //巡听部门
+    function TourFUN() {
+        $(".selList").html("");
+        getFun("zTreeData/bumenAndUserTreeByCode.action",{"actCode":"conferPlan"},function(data){
+           $(data).each(function(){
+             var item =  optionitem.clone().val(this._id).text(this.name);
+             $(".selList").append(item)
+		   })
+		})
+    }
+    function creatconfirm(){
+        var timeStart=  $(".datetimeStart").val();
+        var timeEnd = $(".datetimeEnd").val();
+        var userIdStr =peoplearrid.toString();
+		var userNameStr =peoplearr.toString();
+        var beTourid = $(".besection").attr("id");
+	    var beTourName = $(".besection").val();
+        getFun("conference/plan/upsert.action",{
+            "userIdStr":userIdStr,
+            "userNameStr":userNameStr,
+            "forbumenId":beTourid,
+            "forbumenName":beTourName,
+            "startTime":timeStart,
+            "endTime":timeEnd,
+			"_id":changplaneid
+		},function(data){
+            if(data.success==true){
+                if(changplaneid){
+                    layer.msg("变更计划成功");
+                    changplaneid = "";
+                }
+				else{
+                    layer.msg("创建成功");
+				}
+
+                render()
+            }
+            else{
+                alertFun(data.message)
+            }
+
+		})
+
+
+	}
+	function listerFUN() {
+        $(".alertBox1 .closeAlert,.alertBox1 .cancel,.alertBox1 .sure").off("click").on("click",function(){
+            $(".alertBox1").fadeOut();
+        });
+        $(".createpaln").off("click").on("click",function(){
+            getFun("conference/rule/exrule.action",{},function(data){
+                if(data.data){
+                    $(".datetimeStart").val("");
+                    $(".datetimeEnd").val("");
+                    $(".selList ").val("");
+                    $(".besection").attr("id","");
+                    $(".besection").val("");
+                    $(".alertBox2").fadeIn();
+                    TourFUN();
+
+				}
+                else{
+                    $(".alertBox1").fadeIn();
+                }
+            })
+
+        });
+        $(".alertBox2 .closeAlert,.alertBox2 .cancel,.alertBox2 .sure").off("click").on("click",function(){
+            $(".alertBox2").fadeOut();
+        });
+        //规则设置
+        $(".ruleSetting").off("click").on("click",function(){
+            location.href = "ruleSetting.html";
+        });
+        //
+        // $("td a").off("click").on("click",function(){
+        //     if ($(this).text() == "添加记录") {
+        //         location.href = "addPlanRecord.html";
+        //     }
+        // });
+
+    }
+    function meetstateFun(state) {
+        var test;
+        if (state == "1" ) {
+            test = '未开始';
+        } else if (state == "2") {
+            test= '进行中';
+        } else if (state == "3" ) {
+            test = '已结束';
+        } else if (state == "0") {
+            test = '已取消';
+        }
+        return test;
+    };
+    function meecaozuoFun(state) {
+        var test;
+        if (state == "1" ) {
+            test = '变更';
+        } else if (state == "2"||state == "3") {
+            test= '添加记录';
+        } else if (state == "0") {
+            test = '删除';
+        }
+        return test;
+    };
+</script>
+<script>
+    //	选人
+    var showpeotreeid = "";
+    var popleNodes = [];
+    var peoplearr = [];
+    var peoplearrid = [];
+    var searchbtn = false;
+    var zTree2;
+    var setting2 = {
+        view: {
+            nameIsHTML: true,
+            selectedMulti: false
+        },
+        check: {
+            enable: true,
+            chkStyle: "checkbox",
+            radioType: "level"
+        },
+        edit: {
+            enable: false,
+            editNameSelectAll: false
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+
+    };
+
+    function xuanpeo() {
+        getFun("zTreeData/bumenAndUserTreeByCode.action",{"actCode":"conferPlan"}, function(data) {
+            if (data) {
+                popleNodes = data;
+                $(popleNodes).each(function(ind, val) {
+                    if (val.isParent == true) {
+                        val.icon = "../img/bumen.png"
+                    } else {
+                        $(peoplearrid).each(function(i,key){
+                            if(val.id==key){
+                                val.checked=true
+                            }
+                        })
+                        this.icon = "../img/po.png"
+                    }
+                    if (peoplearrid.indexOf(this.id) != -1) {
+                        this.checked = true;
+                    }
+                })
+                zTree2 = $.fn.zTree.init($("#treeDemo2"), setting2, popleNodes);
+                fuzzySearch('treeDemo2','#key',null,true,$("button:contains('搜索')"))
+                var node = zTree2.getNodeByParam("id", 0)
+            }
+        })
+    }
+    function count() {
+        checkCount = zTree2.getCheckedNodes();
+        peoplearr = [];
+        peoplearrid = [];
+        $(checkCount).each(function() {
+            if (this.isParent == false) {
+                peoplearr.push(this.name)
+                peoplearrid.push(this.id)
+            }
+        })
+    }
+    function seachcount() {
+        checkCount = zTree2.getCheckedNodes();
+        $(checkCount).each(function() {
+            if (this.isParent == false) {
+                peoplearr.push(this.oldname)
+                peoplearrid.push(this.id)
+            }
+        })
+    }
+    function showMenu2(){
+            $(".peoalert").show();
+            xuanpeo()
+    }
+    $(".peoalert .pingji").not(".sctiontree").off("click").on("click",function(){
+        if(searchbtn){
+            seachcount()
+        }else{
+            count()
+        }
+        $(".peoalert").hide();
+        var peoplenum = peoplearr.length;
+        if (peoplenum > 0) {
+            var starname = peoplearr[0];
+            $(".people").val(starname + "等" + peoplenum + "人")
+        }
+    })
+
+
+</script>
+<script type="text/javascript">
+    //部门
+        var zNodes = [];
+        var setting = {
+            view: {
+                selectedMulti: false
+            },
+            check: {
+                enable: true,
+                chkStyle: "radio",
+                radioType: "all"
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            callback: {
+                beforeCheck: beforeCheck,
+                onCheck: onCheck
+            }
+        };
+        var code, log, className = "dark";
+        function beforeCheck(treeId, treeNode) {
+            className = (className === "dark" ? "" : "dark");
+            if (treeNode.checked) {
+                return false;
+            }
+            return true;
+        }
+        function onCheck(e, treeId, treeNode) {
+            $(".besection").val(treeNode.name);
+            $(".besection").attr("id", treeNode.id);
+        }
+        function showMenu() {
+            $(".palert").css("display","");
+            $.get(_ctxPath + "zTreeData/bumenTreeByCodeAType.action", {
+                "actCode": "conferPlan",
+                "bumType":3
+            }, function(data) {
+                if (data) {
+                    var zNodes = data;
+                    var chongxiansectionid =$(".besection").attr("id");
+                    $(zNodes).each(function(){
+                        if(this.id==chongxiansectionid){
+                            this.checked=true
+                        }
+                        this.icon = "../img/bumen.png"
+
+                    })
+                    var zTree = $.fn.zTree.init($("#treeDemo1"), setting, zNodes)
+                    var node = zTree.getNodeByParam("id", 0)
+                }
+            })
+        }
+    $(".palert .pingji").not(".sctiontree").off("click").on("click",function(){
+        $(".palert").css("display","none");
+    })
+
+</script>

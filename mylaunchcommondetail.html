@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>我的发起学习管理</title>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../moduleweb/resources/layui/css/layui.css" />
+    <link rel="stylesheet" href="../../resources/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="../../conferActivities/threeclass/icon/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="../../resources/plugins/ztree/zTreeStyle.css" />
+    <style type="text/css">
+        .tabcontent {
+            padding: 15px;
+        }
+        .tabcontent.row {
+            line-height: 30px;
+        }
+        .tabcontentImg img {
+            float: left;
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+        }
+        .people-th-title{
+            padding-left: 20px !important;
+        }
+        .people-td-title{
+            padding-left: 30px !important;
+            width:18%;
+        }
+        .peoples{
+            width: 70%;
+        }
+        .layui-layer-content{
+            color: #ffffff;
+            background:rgba(0,0,0,0.5);
+            margin: 0;
+            padding: 0;
+            border-radius: 4px;
+        }
+        .layui-layer.layui-layer-dialog.layui-layer-border.layui-layer-msg.layer-anim{
+            background-color: transparent;
+            border:none;
+        }
+        #allpage{
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<aside>
+    <img src="../img/nonews.png"/>
+</aside>
+<nav class="header">
+    <ol class="breadcrumb">
+        <li><a href="javascript:;">中心组学习</a></li>
+        <li><a href="javascript:;">学习档案</a></li>
+        <li class="active cursor">中心组学习管理</li>
+    </ol>
+</nav>
+<article>
+    <nav>
+        <ul class="clear">
+            <li class="left cursor active">学习详情</li>
+            <li class="left cursor see">学习记录</li>
+            <li class="left cursor">人员</li>
+        </ul>
+    </nav>
+    <div class="tabCon">
+        <div class="tabContent1">
+            <section>
+                <div class="con_title">基本信息</div>
+                <div class="tabcontent row">
+                    <div class="col-xs-4">
+                        <p>标题：<span id="conferenceTitle"></span></p>
+                        <p>结束时间：<span id="meetingend"></span></p>
+                        <p>单位名称：<span id="partment"></span></p>
+                    </div>
+                    <div class="col-xs-4">
+                        <p>开始时间：<span id="meetingstart"></span></p>
+                        <p>会议地点：<span id="meetingsite"></span></p>
+                    </div>
+                    <div class="col-xs-4">
+                        <p>会议状态：<span id="mymeetstate"></span></p>
+                        <p>参与人员：<span class="peoplename">&nbsp;&nbsp;</span><a href="javascript:;" onclick="peopleFUN()">查看</a></p>
+                    </div>
+                </div>
+            </section>
+            <section>
+                <div class="con_title">学习内容</div>
+                <div class="tabcontent" id="meetcontent"></div>
+            </section>
+            <section>
+                <div class="con_title">图片</div>
+                <div class="tabcontent tabcontentImg clear detailimglist"></div>
+            </section>
+            <section>
+                <div class="con_title">学习材料</div>
+                <div class="tabcontent meetmaterials"></div>
+            </section>
+        </div>
+        <div class="tabContent2">
+            <section>
+                <div class="con_title">现场图片</div>
+                <div class="tabcontent tabcontentImg clear midimglist"></div>
+            </section>
+            <section>
+                <div class="con_title">学习记录</div>
+                <div class="tabcontent recordcont"></div>
+            </section>
+            <section>
+                <div class="con_title ">学习附件</div>
+                <div class="tabcontent meetfujianlist"></div>
+            </section>
+        </div>
+        <div class="tabContent3">
+            <section>
+                <table class="table table-striped tableNoBor">
+                    <tr >
+                        <th class="people-th-title">会议通知</th>
+                        <th></th>
+                        <th style="width:10%"></th>
+                    </tr>
+                    <tr >
+                        <td class="people-td-title">通知未读&nbsp;&nbsp;( <a href="javascript:;" class="NOreadN"></a>)</td>
+                        <td class="peoples noreadarr"></td>
+                        <td><a href="javascript:;" onclick="goseenored()">查看</a>
+                            <a href="javascript:;" onclick="goinform()">再次发送通知</a>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td class="people-td-title">通知已读&nbsp;&nbsp;( <a href="javascript:;" class="readN">33</a>)</td>
+                        <td class="peoples readarr"></td>
+                        <td><a href="javascript:;"  onclick="goseered()">查看</a></td>
+                    </tr>
+                </table>
+            </section>
+            <section>
+                <table class="table table-striped tableNoBor">
+                    <tr >
+                        <th class="people-th-title">会议签到</th>
+                        <th></th>
+                        <th style="width:10%"><a href="javascript:;"  onclick="goseesign(this)" sign="">查看全部</a></th>
+                    </tr>
+                    <tr>
+                        <td class="people-td-title">已签到&nbsp;&nbsp;( <a href="javascript:;" class="alreadSN"></a>)</td>
+                        <td class="signarr"></td>
+                        <td><a href="javascript:;"  onclick="goseesign(this)" sign="2">查看</a></td>
+                    </tr>
+                    <tr class="people-td-title nosignitem">
+                        <td class="people-td-title">未签到&nbsp;&nbsp;( <a href="javascript:;" class="noSN" ></a>)</td>
+                        <td class="noSinarr"></td>
+                        <td><a href="javascript:;"  onclick="goseesign(this)" sign="0,1,6,7">查看</a></td>
+                    </tr>
+                    <tr >
+                        <td class="people-td-title">请假&nbsp;&nbsp;( <a href="javascript:;" class="okleaveN"></a>)</td>
+                        <td class="okleavearr"></td>
+                        <td><a href="javascript:;"  onclick="goseesign(this)" sign="4">查看</a></td>
+                    </tr>
+                    <tr  class="absentitem">
+                        <td class="people-td-title ">缺勤&nbsp;&nbsp;( <a href="javascript:;" class="absentN" ></a>)</td>
+                        <td class="absentarr"></td>
+                        <td><a href="javascript:;"  onclick="goseesign(this)" sign="5">查看</a></td>
+                    </tr>
+                </table>
+            </section>
+            <section>
+                <table class="table table-striped tableNoBor">
+                    <tr >
+                        <th class="people-th-title">学习笔记</th>
+                        <th></th>
+                        <th style="width:10%"><a href="javascript:;" onclick="goseenote(this) " note="" >查看全部</a></th>
+                    </tr>
+                    <tr >
+                        <td class="people-td-title">已确认&nbsp;&nbsp;( <a href="javascript:;" class="noteokN"></a>)</td>
+                        <td class="noteokArr"></td>
+                        <td><a href="javascript:;" onclick="goseenote(this) " note="1">查看</a></td>
+                    </tr>
+                    <tr class="people-td-title">
+                        <td class="people-td-title">未确认&nbsp;&nbsp;( <a href="javascript:;" class="NonoteN"></a>)</td>
+                        <td class="NonoteArr"></td>
+                        <td><a href="javascript:;" onclick="goseenote(this) " note="0">查看</a></td>
+                    </tr>
+
+                </table>
+            </section>
+        </div>
+    </div>
+</article>
+<div class="alertBox alertBox1 shadelone">
+    <div class="alert">
+        <div class="header">
+            <p class="ellipsis">人员</p>
+            <img class="closeAlert" src="../img/close.png"/>
+        </div>
+        <div class="alert_content" >
+            <table class="table table-striped tableNoBor">
+                <tr>
+                    <th>姓名</th>
+                    <th>所属支部</th>
+                </tr>
+                <tbody class="alllist">
+                <tr class="allpeoitem">
+                    <td class="name"></td>
+                    <td class="section"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="allpage"></div>
+    </div>
+</div>
+</body>
+</html>
+<!--img-->
+<img src="" class="meetimg" style="display: none;" />
+<!--附件-->
+<div class="funjianitem" style="display: none; ">
+    <a href="" class="ahref" target="_blank">
+        <span class="iconfont icon-fujian"></span>
+        <span class="filename"></span>
+    </a>
+</div>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap-datetimepicker.zh-CN.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="../../resources/plugins/ztree/jquery.ztree.core.min.js"></script>
+<script src="../../resources/plugins/ztree/jquery.ztree.excheck.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/plugins/ueditor/ueditor.config.js"></script>
+<script src="../../resources/plugins/ueditor/ueditor.all.js"></script>
+<script src="../../resources/plugins/ueditor/lang/zh-cn/zh-cn.js"></script>
+<script src="../../../moduleweb/resources/plugins/qiniu.min.js"></script>
+<script src="../js/uploadFile.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script src="../js/timer.js"></script>
+<script type="text/javascript">
+    var meetimg = $(".meetimg");
+    var funjianitem = $(".funjianitem");
+</script>
+<script type="text/javascript" charset="utf-8">
+    var detailid = getParam("id");
+    var meetid;
+    $(function() {
+        $.get(_ctxPath + "conference/findById.action", {
+            "conferId": detailid
+        }, function(data) {
+            conference = data.data;
+            if(conference.state>=3){
+                $(".nosignitem").css("display","none");
+            }
+            else{
+                $(".absentitem").css("display","none");
+            }
+            meetid = conference._id
+            //会议基本信息
+            $("#conferenceTitle").text(conference.title);
+            $("#partment").text(conference.forbumname);
+            $("#meethingname").text(conference.meetTypeName);
+            $("#meetingsite").text(conference.address);
+            $("#meetingstart").text(conference.formatAttendtime);
+            $("#meetingend").text(conference.formatEndTime);
+            var signobj = JSON.parse(signstateFun(data.data.state));
+            $("#mysign").text(signobj.txt);
+            var meetstate = data.data.state
+            var meetobj = JSON.parse(meetstateFun(meetstate));
+            $("#mymeetstate").text(meetobj.txt);
+            var name = conference.toConferUser[0].name;
+            $(".peoplename").text(name+"等"+conference.toConferUser.length+"人");
+            $(".peoplenums").text(conference.toConferUser.length);
+            //会议内容
+            if (conference.content) {
+                $("#meetcontent").html(conference.content);
+            } else {
+                $("#meetcontent").html("暂无会议内容");
+            }
+            //会议图片
+
+            if (conference.imageUrls.length == 0) {
+                $(".detailimglist").text("暂无图片")
+            } else {
+
+                $(conference.imageUrls).each(function() {
+                    var item = meetimg.clone().css("display", "")
+                    item.attr("src", this);
+                    $(".detailimglist").append(item)
+                })
+            }
+            //会议材料
+            if (conference.fileUrls.length == 0) {
+                $(".meetmaterials").text("暂无会议材料");
+            } else {
+                var Furl = conference.fileUrls;
+                var Fname = conference.fileNames;
+                var Fid = conference.fileIds;
+                $(Furl).each(function(index, key) {
+                    var item = funjianitem.clone().css("display", "");
+                    item.find(".ahref").attr("href", key);
+                    item.find(".ahref").attr("download", Fname[index]);
+                    item.find(".filename").text(Fname[index]);
+                    item.find(".filename").attr("flieid", Fid[index]);
+                    $(".meetmaterials").append(item);
+                })
+            }
+            //会议记录
+            //会中
+            var midimgarr = conference.conferImagesUrls;
+
+            if (midimgarr.length == 0) {
+                $(".midimglist").text("暂无现场图片")
+            } else {
+                $(".midimglist").css("display", "");
+                $(conference.conferImagesUrls).each(function() {
+                    var item = meetimg.clone().css("display", "")
+                    item.attr("src", this);
+                    $(".midimglist").append(item);
+                })
+
+            }
+            //会后
+            var minCont = conference.minCont;
+            if (!minCont) {
+                $(".recordcont").text("暂无会议记录")
+            } else {
+                $(".recordcont").html(conference.minCont);
+            }
+            // 签到记录
+            // if(conference.minutisgeUrls.length == 0){
+            //     $(".laterimglist").append("暂无签到记录")
+            // }else{
+            //     $(conference.minutisgeUrls).each(function() {
+            //         var item = meetimg.clone().css("display", "")
+            //         item.attr("src", this);
+            //         $(".laterimglist").append(item)
+            //     })
+            // }
+            //会议附件
+            var Furl = conference.minFileUrls;
+            var Fname = conference.minfileNames;
+            var Fid = conference.minfileid
+            if (Furl.length > 0) {
+                $(Furl).each(function(index, key) {
+                    var item = funjianitem.clone().css("display", "");
+                    item.find(".ahref").attr("href", key);
+                    item.find(".ahref").attr("download", Fname[index]);
+                    item.find(".filename").text(Fname[index]);
+                    item.find(".filename").attr("flieid", Fid[index]);
+                    $(".meetfujianlist").append(item);
+
+                })
+            } else {
+                $(".meetfujianlist").text("暂无会议附件");
+            }
+            //会议通知
+            var readnumall = conference.isLeave + conference.istoLeave + conference.toReader + conference.isSin + conference.isNduty
+            $(".toReader").text(readnumall);
+            $(".noReader").text(conference.noReader);
+            $(".isLeave").text(conference.isLeave);
+            $(".istoLeave").text(conference.istoLeave);
+            $(".userCount").text(conference.userCount);
+            $(".isSin").text(conference.isSin);
+            $(".isNduty").text(conference.isNduty);
+        })
+        $(".alertBox1 .closeAlert,.alertBox1 .cancel,.alertBox1 .sure").off("click").on("click",function(){
+            $(".alertBox1").fadeOut();
+        });
+        xuanran()
+    })
+    //函数
+    function meetstateFun(state) {
+        var test = {};
+        if (state == "0" || state == "1") {
+            test["txt"] = '未开始';
+            test["color"] = "#40A9FF";
+        } else if (state == "2") {
+            test["txt"] = '进行中';
+            test["color"] = "#40A9FF";
+        } else if (state == "3" || state == "4" || state == "5") {
+            test["txt"] = '已结束';
+            test["color"] = "#73D13D";
+        } else if (state == "-1") {
+            test["txt"] = '已取消';
+            test["color"] = "#F5222D";
+        }
+        return JSON.stringify(test);
+    };
+
+    function signstateFun(state) {
+        var test = {};
+        if (state == "2") {
+            test["txt"] = '已签到';
+            test["color"] = "#52C41A";
+        } else if (state == "3") {
+            test["txt"] = '迟到';
+            test["color"] = "#834DDD";
+        } else if (state == "4") {
+            test["txt"] = '请假';
+            test["color"] = "#FFBF00";
+        } else if (state == "5") {
+            test["txt"] = '缺勤';
+            test["color"] = "#F5222D";
+        } else if (state == "6") {
+            test["txt"] = '待审核';
+            test["color"] = "#0084ff";
+        } else if (state == "7") {
+            test["txt"] = '驳回';
+            test["color"] = "#ff0096";
+        } else if (state == "0" || state == "1") {
+            test["txt"] = '未签到';
+            test["color"] = "#565656";
+        }
+        return JSON.stringify(test);
+    }
+
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>
+<script type="text/javascript">
+    $(function() {
+        $.get(_ctxPath + "conference/detail/findSConrer.action", {
+            "conferId": detailid
+        }, function(data) {
+            var noReader = data.data.noReader;
+            var SnoReader = [];
+            SnoReader = SnoReader.concat(noReader);
+            var toReader = data.data.toReader;
+            var StoReader = [];
+            StoReader = StoReader.concat(toReader);
+            var noSin = data.data.noSin;
+            var SnoSin = noSin;
+            var SnoSin = [];
+            SnoSin = SnoSin.concat(noSin);
+            var isSin = data.data.isSin;
+            var SisSin = isSin;
+            var SisSin = [];
+            SisSin = SisSin.concat(isSin);
+            var Late = data.data.Late;
+            var SLate = [];
+            SLate = SLate.concat(Late);
+            var isLeave = data.data.isLeave;
+            var SisLeave = [];
+            SisLeave = SisLeave.concat(isLeave);
+            var isNduty = data.data.isNduty;
+            var SisNduty = [];
+            SisNduty = SisNduty.concat(isNduty);
+            var isNonote = data.data.noNote;
+            var SisNonote = [];
+            SisNonote =  SisNonote.concat(isNonote);
+            var isnoteok = data.data.isSubNote;
+            var Sisnoteok = [];
+            Sisnoteok = Sisnoteok.concat(isnoteok);
+
+            var informlv = noReader.length == 0 ? 100 : (toReader.length / noReader.length) * 100;
+            $(".informprecent").text(informlv + "%");
+            var signlv = noSin.length == 0 ? 100 : (isSin.length / noSin.length) * 100;
+            $(".signprecent").text(signlv + "%");
+            $(".NOreadN").text(noReader.length);
+            $(".informnum").text(noReader.length)
+            $(".readN").text(toReader.length);
+            $(".alreadSN").text(isSin.length);
+            $(".noSN").text(noSin.length);
+            $(".lateSN").text(Late.length);
+            $(".okleaveN").text(isLeave.length);
+            $(".absentN").text(isNduty.length);
+            $(".NonoteN").text(isNonote.length);
+            $(".noteokN").text(isnoteok.length);
+            if (noReader.length > 0) {
+                var noReaderarr = SnoReader.splice(0, 5);
+                var noReadePeople = noReaderarr.join("、");
+                $(".noreadarr").text(noReadePeople + "等" + noReader.length + "人");
+            }
+            if (toReader.length > 0) {
+                var toReaderarr = StoReader.splice(0, 5);
+                var toReaderPeople = toReaderarr.join("、");
+                $(".readarr").text(toReaderPeople + "等" + toReader.length + "人");
+            }
+            if (isSin.length > 0) {
+                var isSinarr = SisSin.splice(0, 5);
+                var isSinPeople = isSinarr.join("、");
+
+                $(".signarr").text(isSinPeople + "等" + isSin.length + "人");
+            }
+            if (noSin.length > 0) {
+                var noSinarr = SnoSin.splice(0, 5);
+                var noSinPeople = noSinarr.join("、");
+
+                $(".noSinarr").text(noSinPeople + "等" + noSin.length + "人");
+            }
+            if (Late.length > 0) {
+                var Latearr = SLate.splice(0, 5);
+                var LatePeople = Latearr.join("、");
+                $(".latearr").text(LatePeople + "等" + Late.length + "人");
+
+            }
+            if (isLeave.length > 0) {
+                var isLeavearr = SisLeave.splice(0, 5);
+                var isLeavePeople = isLeavearr.join("、");
+                $(".okleavearr").text(isLeavePeople + "等" + isLeave.length + "人");
+            }
+            if (isNduty.length > 0) {
+                var isNdutyarr = SisNduty.splice(0, 5);
+                var isNdutyPeople = isNdutyarr.join("、");
+                $(".absentarr").text(isNdutyPeople + "等" + isNduty.length + "人");
+            }
+            if (isNonote.length > 0) {
+                var isNonotearr = SisNonote.splice(0, 5);
+                var isNonotePeople = isNonotearr.join("、");
+                $(".NonoteArr").text(isNonotePeople + "等" + isNonote.length + "人");
+            }
+            if (isnoteok.length > 0) {
+                var isnoteokarr = Sisnoteok.splice(0, 5);
+                var isnoteokPeople = isnoteokarr.join("、");
+                $(".noteokArr").text(isnoteokPeople + "等" + isnoteok.length + "人");
+
+            }
+        })
+    })
+    //noSN noSout lateSN lateSout okleaveN okleaveout absentN absentout
+    function goinform(that) {
+        $.get(_ctxPath + "conference/sedNotice.action", {
+            "conferId": meetid
+        }, function(data) {
+            if (data.success) {
+                var informnum = $(".NOreadN").text();
+                layer.msg("通知已发送完成"+"共发送通知"+informnum+"条");
+            }
+            else{
+                layer.msg(data.message);
+            }
+
+        })
+    };
+    function goseenored() {
+        window.location.href = "informNOread.html?id=" + detailid;
+    }
+    function goseered() {
+        window.location.href = "informRead.html?id=" + detailid;
+    }
+    function goseesign(that) {
+        var state = $(that).attr("sign");
+        window.location.href = "sign.html?id=" + detailid + "&signstate=" + state;
+    }
+    function goseenote(that) {
+        var notestate = $(that).attr("note");
+        window.location.href = "noteAffirm.html?id=" + detailid + "&notestate=" + notestate;
+    }
+</script>
+<script type="text/javascript">
+
+
+    $(function() {
+        var seerecord = getParam("seecord");
+        if(seerecord=="1"){
+            $(".tabCon>div").eq(1).show().siblings().hide();
+            $("article>nav .see").addClass("active").siblings().removeClass("active");
+        }
+        //tab切换
+        $("article>nav li").off("click").on("click",function() {
+            $(".tabCon>div").eq($(this).index()).show().siblings().hide();
+            $(this).addClass("active").siblings().removeClass("active");
+        });
+    });
+</script>
+<script type="text/javascript">
+    // <!--查看人员-->
+    var allpeoitem =$(".allpeoitem");
+    allpeoitem.remove();
+    var pagea = 1; //开始页数
+    var sizea = 10; //每页最多显示条数
+    var nowpagea = 1; //当前页数
+    var pagesa = 0; //总数
+    function peopleFUN(){
+        $(".alertBox1").fadeIn();
+    }
+    function xuanran() {
+        $.get(_ctxPath + "conference/detail/queryByConfer.action", {
+            "conference._id": detailid,
+            "page": nowpagea, //当前页数
+            "size": sizea,
+        }, function(data) {
+            $(".alllist").html("");
+            var arr = data.data.data;
+            pagesa = data.data.total;
+            pagea = data.data.page;
+            if (arr.length > 0) {
+                $(arr).each(function () {
+                    var peoitem = allpeoitem.clone();
+                    peoitem.find(".name").text(this.userName);
+                    peoitem.find(".section").text(this.bumenName);
+                    $(".alllist").append(peoitem)
+                })
+            }
+            pagepeozhi()
+        })
+    }
+
+    function pagepeozhi() {
+        layui.use(['laypage', 'layer'], function() {
+            var laypage = layui.laypage,
+                layer = layui.layer;
+            laypage.render({
+                elem: 'allpage',
+                count: pagesa,
+                curr: nowpagea,
+                limit: sizea,
+                layout: ['count', 'prev', 'page', 'next', 'skip'],
+                jump: function(obj, first) {
+                    nowpagea = obj.curr;
+                    pagea = (obj.curr - 1) * sizea;
+                    if (!first) { //一定要加此判断，否则初始时会无限刷新
+                        xuanran(); //一定要把翻页的ajax请求放到这里，不然会请求两次。
+                        location.href = '#top';
+                    }
+                }
+            });
+        });
+    }
+
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>

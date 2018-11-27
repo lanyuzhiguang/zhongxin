@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>签到</title>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="../../../moduleweb/resources/layui/css/layui.css" />
+    <style>
+        /*titltModal*/
+        .changeBtn {
+            position: relative;
+        }
+        .changeBtn:hover .titleModal {
+            display: block;
+        }
+        .titleModal {
+            width: 120px;
+            height: 72px;
+            overflow: hidden;
+            border-radius: 4px;
+            position: absolute;
+            top: 100%;
+            background: #fff;
+            box-shadow: 0 0 5px 1px #ccc;
+            display: none;
+        }
+        .titleModal>div {
+            padding: 8px;
+        }
+        .titleModal>div:hover {
+            background: #E6F7FF;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+            padding-left:25px;
+        }
+        .layui-layer-content{
+            color: #ffffff;
+            background:rgba(0,0,0,0.5);
+            margin: 0;
+            padding: 0;
+            border-radius: 4px;
+        }
+        .layui-layer.layui-layer-dialog.layui-layer-border.layui-layer-msg.layer-anim{
+            background-color: transparent;
+            border:none;
+        }
+    </style>
+</head>
+<body>
+<aside>
+    <img src="../img/nonews.png"/>
+</aside>
+<nav class="header">
+    <ol class="breadcrumb">
+        <li><a href="javascript:;">中心组学习</a></li>
+        <li class="active cursor">签到</li>
+    </ol>
+</nav>
+<article>
+    <nav>
+        <ul class="clear">
+            <li class="left cursor active">签到</li>
+        </ul>
+    </nav>
+    <section>
+        <table class="table table-striped tableNoBor">
+            <tr>
+                <th>姓名</th>
+                <th>所属支部</th>
+            </tr>
+            <tbody class="list">
+            <tr class="signitem">
+                <td class="name"></td>
+                <td class="section"></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+    <section> <div id="readpage"></div></section>
+</article>
+</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="../../resources/plugins/ztree/jquery.ztree.core.min.js"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script type="text/javascript">
+    var id = getParam("id");
+    var signitem = $(".signitem")
+    signitem.remove();
+    var pagea = 1; //开始页数
+    var sizea = 20; //每页最多显示条数
+    var nowpagea = 1; //当前页数
+    var pagesa = 0; //总数
+    var state = "";
+    var bumenname = "";
+    var selectname = "";
+    state = getParam("signstate");
+    $(function() {
+        xuanran()
+    })
+    function xuanran() {
+        $.get(_ctxPath + "conference/detail/queryByConfer.action", {
+            "conference._id": id,
+            "page": nowpagea, //当前页数
+            "size": sizea,
+            "in:state|array-integer": state,
+            "regex:bumenName": bumenname,
+            "regex:userName": selectname
+        }, function(data) {
+            var arr = data.data.data;
+            pagesa = data.data.total;
+            pagea = data.data.page;
+            $(".list").html("");
+            if (arr.length > 0) {
+                $(arr).each(function() {
+                    var item = signitem.clone().css("display", "");
+                    item.find(".name").text(this.userName);
+                    item.find(".section").text(this.bumenName);
+                    $(".list").append(item);
+                })
+            }
+            pagepeozhi()
+        })
+    }
+    function pagepeozhi() {
+        layui.use(['laypage', 'layer'], function() {
+            var laypage = layui.laypage,
+                layer = layui.layer;
+            laypage.render({
+                elem: 'readpage',
+                count: pagesa,
+                curr: nowpagea,
+                limit: sizea,
+                layout: ['count', 'prev', 'page', 'next', 'skip'],
+                jump: function(obj, first) {
+                    nowpagea = obj.curr;
+                    pagea = (obj.curr - 1) * sizea;
+                    if (!first) { //一定要加此判断，否则初始时会无限刷新
+                        xuanran(); //一定要把翻页的ajax请求放到这里，不然会请求两次。
+                        location.href = '#top';
+                    }
+                }
+            });
+        });
+    }
+
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>

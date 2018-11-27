@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>添加规则</title>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+    <link rel="stylesheet" type="text/css" href="../css/index.css"/>
+    <link rel="stylesheet" type="text/css" href="../../layui/css/layui.css" />
+    <style>
+        .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+            vertical-align: middle;
+        }
+        .td-title{
+            text-align: center;
+            width: 15%;
+        }
+        th{
+            text-align: center;
+        }
+        .tab-title{
+            background-color: #F9F9F9;
+            height: 52px;
+            display:flex;
+            align-items: center;
+            padding-left: 12px;
+        }
+        .col-xs-5{
+            padding-left: 0;
+        }
+        .col-xs-2{
+            padding-right: 0;
+        }
+       .alert_content textarea{
+           display: block;
+           margin: 0 auto;
+           height: 120px;
+           width: 100%;
+           padding-left: 10px;
+           padding-top: 10px;
+           font-size: 14px;
+           border: 1px solid #cccccc;
+           border-radius: 4px;
+        }
+        .layui-layer-content{
+            color: #ffffff;
+            background:rgba(0,0,0,0.5);
+            margin: 0;
+            padding: 0;
+            border-radius: 4px;
+        }
+        .layui-layer.layui-layer-dialog.layui-layer-border.layui-layer-msg.layer-anim{
+            background-color: transparent;
+            border:none;
+        }
+    </style>
+</head>
+<body>
+<aside>
+    <img src="../img/nonews.png"/>
+</aside>
+<nav class="header">
+    <ol class="breadcrumb">
+        <li><a href="javascript:;">中心组学习</a></li>
+        <li><a href="javascript:;">旁听巡听</a></li>
+        <li class="active cursor">添加规则</li>
+    </ol>
+</nav>
+<article>
+    <nav>
+        <ul class="clear">
+            <li class="left cursor active">添加规则</li>
+        </ul>
+    </nav>
+    <section>
+        <div class="row" style="width:62%; padding-bottom:20px">
+            <label class="col-xs-2"><span class="red">*</span>规则名称：</label>
+            <div class="col-xs-5">
+                <input type="text" class=" form-control reluName" placeholder="请输入" />
+            </div>
+        </div>
+        <div style="padding-bottom: 20px"><button class="btnbg2 addEvaluation" >添加考评内容</button></div>
+        <div class="list">
+            <div class="reuitem">
+                <div class="tab-title">
+                <div class="col-xs-9 reuitem-title">1.组织领导：严格按照《公交集团公司两级党委（党总支）理论学习中心组学习实施细则》，组织开展年度中心组理论学习。</div>
+                <div class="col-xs-3" style="padding-left:60px">
+                    <a href="javascript:;" class="addscore">添加分值和标准</a>
+                    <a href="javascript:;" class="" onclick="editorFUN(this)">编辑</a>
+                    <a href="javascript:;" class="delcontent" >删除</a>
+                </div>
+            </div>
+                <table class="table table-bordered ">
+                <tr>
+                    <th>分值</th>
+                    <th>评分标准</th>
+                    <th>操作</th>
+                </tr>
+                    <tbody class="tablelist">
+                        <tr class="tableitem">
+                            <td  class="td-title table-score" >2</td>
+                            <td class="table-stander"></td>
+                            <td class="td-title">
+                                <a href="javascript:;" class="eaitorscore">编辑</a>
+                                <a href="javascript:;" onclick="delFUN(this)">删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+            </table>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="footerBtnBox">
+            <button class="btn btn-default cancelBtn" onclick="history.back(-1)">取消</button>
+            <button class="btnbg submitBtn" onclick="endconfirm()">确定</button>
+        </div>
+    </section>
+</article>
+<div class="alertBox alertBox1">
+    <div class="alert">
+        <div class="header">
+            <p class="ellipsis">提示</p>
+        </div>
+        <div class="alert_content">
+            该考评内容下所有评分标准和分值都会删除，并且删除后不可恢复，您确定删除吗？
+        </div>
+        <div class="alert_footer">
+            <button class="btnbg sure" onclick="delFUN(this)">确定</button>
+            <button class="btn btn-default cancel">取消</button>
+        </div>
+    </div>
+</div>
+<div class="alertBox alertBox2">
+    <div class="alert">
+        <div class="header">
+            <p class="ellipsis">考评内容</p>
+            <img class="closeAlert" src="../img/close.png"/>
+        </div>
+        <div class="alert_content row">
+            <textarea name=""  cols="30" rows="10" placeholder="请输入考评内容" class="Evaluationcontent"></textarea>
+        </div>
+        <div class="alert_footer">
+            <button class="btnbg sure" onclick="addEvaluationFUN()">确定</button>
+            <button class="btn btn-default cancel">取消</button>
+        </div>
+    </div>
+</div>
+<div class="alertBox alertBox3">
+    <div class="alert">
+        <div class="header">
+            <p class="ellipsis">分值和标准</p>
+            <img class="closeAlert" src="../img/close.png"/>
+        </div>
+        <div class="alert_content row">
+            <form class="form-horizontal col-xs-10">
+                <div class="form-group">
+                    <label  class="col-xs-4 control-label"><span class="red">*</span>分值：</label>
+                    <div class="col-xs-8">
+                        <input type="number" class="form-control alert-scoreNum" placeholder="请输入" min="0"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-xs-4 control-label"><span class="red">*</span>评分标准：</label>
+                    <div class="col-xs-8">
+                        <textarea name="" id="" cols="30" rows="10" placeholder="请输入" class="alert-stander"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="alert_footer">
+            <button class="btnbg sure" onclick="addscoreFUN(this)">确定</button>
+            <button class="btn btn-default cancel">取消</button>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script>
+    var id = getParam("id");
+    var parentId;
+    var ownid = "";
+    var reuitem = $(".reuitem");
+    var tableitem = $(".tableitem");
+    tableitem.remove();
+    reuitem.remove();
+
+    function getParam(paramName) {
+        paramValue = "", isFound = !1;
+        if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+            arrSource = decodeURIComponent(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+            while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++;
+        }
+        return paramValue == "" && (paramValue = null), paramValue;
+    }
+</script>
+<script>
+    $(function(){
+        render()
+    })
+    function render (){
+        getFun("conference/rule/findRule.action",{"confId":id},function(data){
+            if(data.success){
+                $(".reluName").val(data.entity.name)
+                var arrone = data.data[id]
+                $(arrone).each(function(ind,val){
+                    var item = reuitem.clone();
+                    item.find(".reuitem-title").text(this.name);
+                    item.find("a").attr("titleid",this._id);
+                    var tablearr = data.data[this._id];
+                    $(tablearr).each(function(){
+                        var item2 = tableitem.clone();
+                        item2.find(".table-score").text(this.score);
+                        item2.find(".table-stander").text(this.standard);
+                        item2.find("a").attr("id",this._id).attr("titleid",this.parentId);
+                        item.find(".tablelist").append(item2)
+                    })
+                    $(".list").append(item)
+                })
+            }
+            else{
+                alertFun(data.message)
+            }
+            listerFUN()
+        })
+
+    }
+    function addEvaluationFUN() {
+        var Evaluationcontent = $(".Evaluationcontent").val();
+        parentId = id
+        getFun("conference/rule/editRule.action",{"confId":id,"name":Evaluationcontent,"type":1,"parentId":parentId,"_id":ownid},function(data){
+            ownid= "";
+            if(data.success){
+                $(".list").html("")
+                render()
+            }
+            else{
+                alertFun(data.message)
+            }
+
+        })
+
+    }
+    function addscoreFUN (that){
+        var myid = $(that).attr("id");
+        var pid = $(that).attr("parentid");
+        var score = $(".alert-scoreNum").val();
+        var standard = $(".alert-stander").val();
+        getFun("conference/rule/editRule.action",{"confId":id,"score":score,"standard":standard,"type":2,"parentId": pid,"_id":myid},function(data){
+            if(data.success){
+                $(".list").html("");
+                render()
+            }
+            else{
+                alertFun(data.message)
+            }
+
+        })
+    }
+    function editorFUN (that){
+        $(".Evaluationcontent").val("");
+        $(".alertBox2").fadeIn();
+     var editiorText = $(that).parent().parent().find(".reuitem-title").text();
+       $(".Evaluationcontent").val(editiorText);
+        ownid  = $(that).attr("titleid");
+    }
+    function delFUN(that){
+        var myid = $(that).attr("id")
+        getFun("conference/rule/remove.action",{"ruleId":myid},function(data){
+            if(data.success){
+                layer.msg("删除成功");
+                $(".list").html("")
+                render()
+            }
+            else{
+                alertFun(data.message)
+            }
+        })
+    }
+    function endconfirm (){
+        var pagetitle = $(".reluName").val();
+        getFun("conference/rule/enrule.action",{"confId":id,"name":pagetitle},function(data){
+            if(data.success){
+                history.back(-1)
+            }
+            else{
+                alertFun(data.message)
+            }
+        })
+}
+
+</script>
+<script>
+    function listerFUN() {
+            $(".delcontent").off("click").on("click",function(){
+                $(".alertBox1").fadeIn();
+                var delid = $(this).attr("titleid")
+                $(".alertBox1").find(".sure").attr("id",delid);
+            });
+            $(".alertBox1 .closeAlert,.alertBox1 .cancel,.alertBox1 .sure").off("click").on("click",function(){
+                $(".alertBox1").fadeOut();
+            });
+            $(".addEvaluation").off("click").on("click",function(){
+                $(".Evaluationcontent").val("");
+                $(".alertBox2").fadeIn();
+
+            })
+            $(".alertBox2 .closeAlert,.alertBox2 .cancel,.alertBox2 .sure").off("click").on("click",function(){
+                $(".alertBox2").fadeOut();
+            });
+            $(".addscore,.eaitorscore").off("click").on("click",function(){
+                $(".alert-scoreNum").val("");
+                $(".alert-stander").val("");
+                $(".alertBox3").find(".sure").attr("id","").attr("titleid","");
+                var bigid = $(this).attr("titleid");
+                var id = $(this).attr("id");
+                var editiornum = $(this).parent().parent().find(".table-score").text();
+                var editorstand = $(this).parent().parent().find(".table-stander").text();
+                $(".alert-scoreNum").val(editiornum);
+                $(".alert-stander").val(editorstand);
+                $(".alertBox3").fadeIn();
+                $(".alertBox3").find(".sure").attr("id",id).attr("parentid",bigid);
+            })
+            $(".alertBox3 .closeAlert,.alertBox3 .cancel,.alertBox3 .sure").off("click").on("click",function(){
+                $(".alertBox3").fadeOut();
+            });
+
+    }
+</script>

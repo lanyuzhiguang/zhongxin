@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>学习档案</title>
+		<link rel="stylesheet" type="text/css" href="../../resources/plugins/ztree/zTreeStyle.css" />
+		<link rel="stylesheet" type="text/css" href="../../resources/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="../../resources/css/base.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/index.css"/>
+		<link rel="stylesheet" type="text/css" href="../../../moduleweb/resources/layui/css/layui.css" />
+		<style>
+			.changeBtn {
+				position: relative;
+			}
+			.changeBtn:hover .titleModal {
+				display: block;
+			}
+			.titleModal {
+				width: 120px;
+				height: 72px;
+				overflow: hidden;
+				border-radius: 4px;
+				position: absolute;
+				top: 100%;
+				background: #fff;
+				box-shadow: 0 0 5px 1px #ccc;
+				display: none;
+				z-index: 20;
+			}
+			.titleModal>div {
+				padding: 8px;
+			}
+			.titleModal>div:hover {
+				background: #E6F7FF;
+			}
+			.td-omit{
+				width: 23%;
+			}
+			.omit{
+				width: 200px;
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+			.layui-layer-content{
+				color: #ffffff;
+				background:rgba(0,0,0,0.5);
+				margin: 0;
+				padding: 0;
+				border-radius: 4px;
+			}
+			.layui-layer.layui-layer-dialog.layui-layer-border.layui-layer-msg.layer-anim{
+				background-color: transparent;
+				border:none;
+			}
+		</style>
+	</head>
+	<body>
+		<aside>
+			<img src="../img/nonews.png"/>
+		</aside>
+		<nav class="header">
+			<ol class="breadcrumb">
+			  <li><a href="javascript:;">中心组学习</a></li>
+			  <li class="active cursor">学习档案</li>
+			</ol>
+		</nav>
+		<article>
+			<nav>
+				<ul class="clear">
+					<li class="left cursor active">学习档案</li>
+				</ul>
+			</nav>
+			<section>
+				<label for="">学习标题：</label>
+				<input type="text" class="form-control widthMin verticalalignTop launchmeettitle" placeholder="请输入" />
+				<label for="">选择单位：</label>
+				<input type="text" class="form-control widthMin verticalalignTop xuanbumen"  placeholder="请输入"/>
+				<label for="">选择状态：</label>
+				<select class="form-control widthMin verticalalignTop launchmeetStatelist">
+					<option value="">全部</option>
+					<option value="0,1">未开始</option>
+					<option value="2">进行中</option>
+					<option value="3,4,5">已结束</option>
+					<option value="-1">已取消</option>
+				</select>
+				<button class="btnbg" onclick="launchclassify()">查询</button>
+				<button class="btnbg" onclick="launchclearall()">重置</button>
+			</section>
+			<section>
+				<table class="table table-striped tableNoBor">
+					<tr>
+						<th>单位名称</th>
+						<th>学习标题</th>
+						<th>学习开始时间</th>
+						<th>学习地点</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+					<tbody class="launchmeetlist">
+					<tr class="launchmeetingitem">
+						<td class="section"></td>
+						<td class="td-omit"><p class="omit meetingtitle cursor" ></p></td>
+						<td class="meetingtime"></td>
+						<td class="td-omit"><p class="omit meetingsate"></p></td>
+						<td class="meetstateText"></td>
+						<td  class="caozuo"><a href="javascript:;" class="changeBtn  launch-blue" onclick="godetail(this)">查看</a>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<div id="launchpage"></div>
+			</section>
+		</article>
+	</body>
+</html>
+<script type="text/javascript" src="../../../r/wx/common/pathimage"></script>
+<script src="../../../moduleweb/resources/js/jquery-3.1.1.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="../../resources/plugins/ztree/jquery.ztree.core.min.js"></script>
+<script src="../../resources/plugins/ztree/jquery.ztree.excheck.js" type="text/javascript" charset="utf-8"></script>
+<script src="../../resources/plugins/ztree/jquery.ztree.exhide.js"></script>
+<script src="../../resources/plugins/ztree/fuzzySearch.js"></script>
+<script src="../../layui/layui.all.js"></script>
+<script src="../js/alert.js"></script>
+<script src="../js/ajax.js"></script>
+<script type="text/javascript">
+    function listerFUN(){
+        $(".alertBox2 .closeAlert,.alertBox2 .cancel,.alertBox2 .sure").off("click").on("click",function(){
+            $(".alertBox2").fadeOut();
+        });
+    }
+</script>
+<script type="text/javascript">
+    //我的发起
+    var meetState = "";
+    var meetType = "";
+    var meettitle = "";
+    var checksection = "";
+    var pagea = 1; //开始页数
+    var sizea = 20; //每页最多显示条数
+    var nowpagea = 1; //当前页数
+    var pagesa = 0;
+    var launchmeetingitem = $(".launchmeetingitem");
+    launchmeetingitem.remove();
+    $(function() {
+        launchFindpage()
+    })
+    //函数
+    function launchclassify() {
+        meetState = $(".launchmeetStatelist option:selected").val();
+        meetType = $(".launchmeettypelist option:selected").val();
+        meettitle = $(".launchmeettitle").val();
+        checksection = $(".xuanbumen").val()
+        launchFindpage();
+    }
+    function launchclearall() {
+        $(".launchmeetStatelist").val("");
+        $(".launchmeettypelist").val("");
+        $(".launchmeettitle").val("");
+        $(".xuanbumen").val("");
+        meetState = $(".launchmeetStatelist option:selected").val();
+        meetType = $(".launchmeettypelist option:selected").val();
+        meettitle = $(".launchmeettitle").val();
+        checksection = $(".xuanbumen").val()
+        launchFindpage();
+    }
+    function meetstateFun(state) {
+        var test = {};
+        if (state == "0" || state == "1") {
+            test["txt"] = '未开始';
+            test["color"] = "#40A9FF";
+        } else if (state == "2") {
+            test["txt"] = '进行中';
+            test["color"] = "#40A9FF";
+        } else if (state == "3" || state == "4" || state == "5") {
+            test["txt"] = '已结束';
+            test["color"] = "#73D13D";
+        } else if (state == "-1") {
+            test["txt"] = '已取消';
+            test["color"] = "#F5222D";
+        }
+        return JSON.stringify(test);
+    };
+    function pagepeozhi() {
+        layui.use(['laypage', 'layer'], function() {
+            var laypage = layui.laypage,
+                layer = layui.layer;
+            laypage.render({
+                elem: 'launchpage',
+                count: pagesa,
+                curr: nowpagea,
+                limit: sizea,
+                layout: ['count', 'prev', 'page', 'next', 'skip'],
+                jump: function(obj, first) {
+                    // var currPage=obj.curr;
+                    // var perPage_num=obj.limit;
+                    nowpagea = obj.curr;
+                    pagea = (obj.curr - 1) * sizea;
+                    if (!first) { //一定要加此判断，否则初始时会无限刷新
+                        launchFindpage(); //一定要把翻页的ajax请求放到这里，不然会请求两次。
+                        location.href = '#top';
+                        //<a href="#top">返回顶部</a>
+                    }
+                }
+            });
+        });
+    }
+    function launchFindpage() {
+        $(".launchmeetlist").html("");
+        $.get(_ctxPath + "conference/adminquery.action", {
+            "regex:forbumname":checksection,
+            "regex:title": meettitle,
+            "page": nowpagea, //当前页数
+            "size": sizea,
+            "in:state|array-integer": meetState,
+            "in:type|array-integer": "301,302"
+        }, function(data) {
+            pagea = data.data.page; //当前页数(后台返回)
+            pagesa = data.data.total;
+            var mylunchArr = data.data.data;
+            if (mylunchArr.length > 0) {
+                $(mylunchArr).each(function() {
+                    var item = launchmeetingitem.clone().css("display", "");
+                    item.find(".meetingtitle").text(this.title)
+					item.find(".section").text(this.forbumname)
+                    item.find(".meetingname").text(this.meetTypeName);
+                    item.find(".meetingtime").text(this.formatAttendtime);
+                    item.find(".meetingsate").text(this.address);
+                    var meetobj = JSON.parse(meetstateFun(this.state));
+                    item.find(".meetstateText").text(meetobj.txt);
+                    item.find(".meetyuan").css("color", meetobj.color);
+                    item.find(".launch-blue").attr("id", this._id);
+                    $(".launchmeetlist").append(item);
+                })
+            }
+            pagepeozhi()
+            listerFUN()
+        })
+    };
+    function godetail(that) {
+        var changeid = $(that).attr("id");
+        var gowhere = $(that).parent().parent().find(".meetingname").text();
+        if(gowhere=="中心组扩大会议"){
+            window.location.href = "studyexpanddetail.html?id=" + changeid;
+        }
+        else{
+            window.location.href = "studycommondetail.html?id=" + changeid;
+        }
+    }
+</script>
